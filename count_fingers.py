@@ -12,24 +12,26 @@ tipIds = [4, 8, 12, 16, 20]
 
 # Defina uma função para contar os dedos
 def countFingers(image, hand_landmarks, handNo=0):
-    print()
-           
-    ####################################################
-
-        # ADICIONE O CÓDIGO AQUI
-
-    ####################################################
-
-# Defina uma função para 
-def drawHandLanmarks(image, hand_landmarks):
-
-    # Desenhar as conexões entre os pontos de referência
     if hand_landmarks:
+        fingers = [0] * 5  # Inicialize o contador de dedos
 
-      for landmarks in hand_landmarks:
-               
-        mp_drawing.draw_landmarks(image, landmarks, mp_hands.HAND_CONNECTIONS)
+        # Polegar
+        if hand_landmarks.landmark[tipIds[0]].x < hand_landmarks.landmark[tipIds[0] - 1].x:
+            fingers[0] = 1
 
+        # Dedos restantes
+        for i in range(1, 5):
+            if hand_landmarks.landmark[tipIds[i]].y < hand_landmarks.landmark[tipIds[i] - 2].y:
+                fingers[i] = 1
+
+        total_fingers = sum(fingers)
+        cv2.putText(image, str(total_fingers), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+# Defina uma função para desenhar os pontos de referência da mão
+def drawHandLanmarks(image, hand_landmarks):
+    if hand_landmarks:
+        for landmarks in hand_landmarks:
+            mp_drawing.draw_landmarks(image, landmarks, mp_hands.HAND_CONNECTIONS)
 
 while True:
     success, image = cap.read()
@@ -45,14 +47,14 @@ while True:
     # Desenhe os pontos de referência
     drawHandLanmarks(image, hand_landmarks)
 
-    # Obtenha a posição dos dedos da mão        
-    #########################
-    # ADICIONE O CÓDIGO AQUI
-    #########################
+    # Conte os dedos
+    if hand_landmarks:
+        for hand_landmark in hand_landmarks:
+            countFingers(image, hand_landmark)
 
-    cv2.imshow("Controlador de Midia", image)
+    cv2.imshow("Controlador de Mídia", image)
 
-    # Saia da tela ao pressionar a barra de espaços
+    # Saia da tela ao pressionar a barra de espaço
     key = cv2.waitKey(1)
     if key == 32:
         break
